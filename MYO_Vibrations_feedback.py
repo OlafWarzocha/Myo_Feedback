@@ -53,7 +53,7 @@ emg_queue = queue.Queue(QUEUE_SIZE)
 
 counter = 0  # counter for tracking time above the red line
 
-def animate(i):
+def animate(i, m):
     global counter
 
     # Myo Plot
@@ -93,7 +93,7 @@ if __name__ == '__main__':
 
     while q.empty():
         continue
-    anim = animation.FuncAnimation(fig, animate, blit=False, interval=20)
+    anim = animation.FuncAnimation(fig, animate, fargs=(myo_worker,), blit=False, interval=20)
 
     def on_close(event):
         p.terminate()
