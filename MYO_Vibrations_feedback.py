@@ -13,10 +13,11 @@ q = multiprocessing.Queue()
 class MyoWorker:
     def __init__(self, q):
         self.q = q
+        self.m = Myo(mode=emg_mode.PREPROCESSED)
 
     def run(self):
-        m = Myo(mode=emg_mode.PREPROCESSED)
-        m.connect()
+        # m = Myo(mode=emg_mode.PREPROCESSED)
+        self.m.connect()
 
         def add_to_queue(emg, movement):
             self.q.put(emg)
@@ -24,14 +25,14 @@ class MyoWorker:
         def print_battery(bat):
             print("Battery level:", bat)
 
-        m.set_leds([255, 255, 255], [255, 255, 255])
-        m.vibrate(1)
-        m.add_battery_handler(print_battery)
-        m.add_emg_handler(add_to_queue)
+        self.m.set_leds([255, 255, 255], [255, 255, 255])
+        self.m.vibrate(1)
+        self.m.add_battery_handler(print_battery)
+        self.m.add_emg_handler(add_to_queue)
 
         while True:
             try:
-                m.run()
+                self.m.run()
             except:
                 print("Worker Stopped")
                 quit()

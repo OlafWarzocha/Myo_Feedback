@@ -24,7 +24,7 @@ class MyoWorker:
         def print_battery(bat):
             print("Battery level:", bat)
 
-        m.set_leds([255, 255, 255], [255, 255, 255])
+        m.set_leds([255, 0, 0], [255, 0, 0])
         m.vibrate(1)
         m.add_battery_handler(print_battery)
         m.add_emg_handler(add_to_queue)
@@ -92,7 +92,7 @@ if __name__ == '__main__':
 
     while q.empty():
         continue
-    anim = animation.FuncAnimation(fig, animate, blit=False, interval=20)
+    anim = animation.FuncAnimation(fig, animate, blit=False, interval=5)
 
     def on_close(event):
         p.terminate()
