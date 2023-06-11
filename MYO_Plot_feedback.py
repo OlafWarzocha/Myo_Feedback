@@ -10,6 +10,8 @@ print("Press ctrl+pause/break to stop")
 
 q = multiprocessing.Queue()
 
+threshold = 300
+
 class MyoWorker:
     def __init__(self, q):
         self.q = q
@@ -71,7 +73,7 @@ def animate(i):
         subplots.set_ylim(0, max(1024, max(channel)))
 
         # Check if EMG signal is above the red line
-        if max(channel) > 200:
+        if max(channel) > threshold:
             subplots.set_facecolor('yellow')
             counter += 1
             if counter >= 50:  # (50 = 1sec)
@@ -82,7 +84,7 @@ def animate(i):
         #print(counter)
 
     # Add a vertical line at y=200
-    subplots.axhline(y=200, color='red')
+    subplots.axhline(y=threshold, color='red')
 
 if __name__ == '__main__':
     # Start Myo Process

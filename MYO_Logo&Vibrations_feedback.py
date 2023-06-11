@@ -43,18 +43,27 @@ def data_worker(mode, seconds, filepath, vibrating):
         if emg[3] > threshold and pause_counter == 0:
             m.set_leds([255, 255, 0], [255, 255, 0])
 
+            #m.vibrate(1)
+
+            if not vibrating.value:
+                m.vibrate(1)
+                vibrating.value = True
+
             counter += 1
 
             if counter>50:
                 m.set_leds([255, 0, 0], [255, 0, 0])
+                m.vibrate(1)
                 counter = 0
                 pause_counter = 50
+                m.vibrate(1)
 
         else:
             if pause_counter == 0:
                 m.set_leds([0, 255, 0], [0, 255, 0])
 
             counter = 0
+            vibrating.value = False
 
             if not pause_counter == 0:
                 pause_counter -= 1
