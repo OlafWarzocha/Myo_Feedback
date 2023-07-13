@@ -3,64 +3,57 @@ import multiprocessing
 import pandas as pd
 from pyomyo import Myo, emg_mode
 
-counter = 0
-pause_counter = 0
-threshold = 300
+counter = 0  # Counter to keep track of consecutive frames above the threshold
+pause_counter = 0  # Counter to introduce a pause after reaching the threshold
+threshold = 300  # Threshold value for detecting a signal above which actions are performed
 
 def data_worker(mode, seconds, filepath, vibrating):
-    """
-    Function to collect EMG data from a Myo armband for a given number of seconds,
-    save the data to a CSV file, and changes logo the armband when the 4th EMG signal
-    exceeds the threshold.
-    """
-    # Initialize variables
+
     collect = True
-    myo_data = []
+    myo_data = []  # List to store the collected EMG data
 
-    # Access global counter variable
-
-
-    # Connect to the Myo armband
     m = Myo(mode=mode)
     m.connect()
 
-    # Add a battery handler to the Myo armband
+    def print_battery(bat):
+        print("Battery level:", bat)    # Print battery level
 
+    m.add_battery_handler(print_battery)
 
-    # Define the function that adds EMG data to the queue.
     def add_to_queue(emg, movement):
-        # Append the value of the fourth EMG signal to the queue.
-        myo_data.append(emg[3])
+        # Callback function for handling incoming EMG data
 
-        # Access global counter variable
+        myo_data.append(emg[3])  # Append EMG data from channel 4 to myo_data list
+
         global counter
         global pause_counter
         global threshold
 
         print(counter)
 
-        # Change Logo the armband if the 4th EMG signal exceeds the threshold
         if emg[3] > threshold and pause_counter == 0:
-            m.set_leds([255, 255, 0], [255, 255, 0])
+            # If the EMG value is above the threshold and no pause is active
 
-            #m.vibrate(1)
+            m.set_leds([255, 255, 0], [255, 255, 0])  # Set LED color to yellow
 
             if not vibrating.value:
-                m.vibrate(1)
+                m.vibrate(1)  # Vibrate the Myo armband for 1 second
                 vibrating.value = True
 
             counter += 1
 
-            if counter>50:
-                m.set_leds([255, 0, 0], [255, 0, 0])
-                m.vibrate(1)
+            if counter > 50:
+                # If consecutive frames above threshold exceed 50
+
+                m.set_leds([255, 0, 0], [255, 0, 0])  # Set LED color to red
+                m.vibrate(1)  # Vibrate the Myo armband for 1 second
                 counter = 0
-                pause_counter = 50
-                m.vibrate(1)
+                pause_counter = 50  # Introduce a pause of 50 frames
+                m.vibrate(1)  # Vibrate the Myo armband for 1 second
 
         else:
             if pause_counter == 0:
-                m.set_leds([0, 255, 0], [0, 255, 0])
+                m.set_leds([0, 255, 0], [0, 255, 0])  # Set LED color to green
 
             counter = 0
             vibrating.value = False
@@ -68,21 +61,16 @@ def data_worker(mode, seconds, filepath, vibrating):
             if not pause_counter == 0:
                 pause_counter -= 1
 
+    m.add_emg_handler(add_to_queue)  # Register the add_to_queue callback for handling EMG data
 
-    # Add the EMG data handler to the Myo armband
-    m.add_emg_handler(add_to_queue)
+    m.set_leds([255, 255, 255], [255, 255, 255])  # Set LED color to white
+    m.vibrate(1)  # Vibrate the Myo armband for 1 second
 
-    # Set the LED colors and vibrate the armband to indicate that it is connected
-    m.set_leds([255, 255, 255], [255, 255, 255])
-    m.vibrate(1)
-
-    # Start collecting data
     print("Data Worker started to collect")
     start_time = time.time()
     while collect:
         if time.time() - start_time < seconds:
-            #print(round(time.time() - start_time))
-            m.run()
+            m.run()  # Run the Myo thread to collect data
         else:
             collect = False
             collection_time = time.time() - start_time
@@ -90,21 +78,17 @@ def data_worker(mode, seconds, filepath, vibrating):
             print(f"Collection time: {collection_time}")
             print(len(myo_data), "frames collected")
 
-            # Save the collected data to a CSV file
             myo_df = pd.DataFrame(myo_data, columns=["Channel_4"])
-            myo_df.to_csv(filepath, index=False)
+            myo_df.to_csv(filepath, index=False)  # Save collected data to a CSV file
             print("CSV Saved at: ", filepath)
 
+
 if __name__ == '__main__':
-    # Set the collection time and output file name
-    seconds = 10
+    seconds = 20
     file_name = str(seconds) + "_test_emg.csv"
 
-    # Set the Myo armband mode and initialize the shared value for vibration control
     mode = emg_mode.PREPROCESSED
-    vibrating = multiprocessing.Value('b', False)
+    vibrating = multiprocessing.Value('b', False)  # Shared value to track vibrating state
 
-    # Start the data worker process
     p = multiprocessing.Process(target=data_worker, args=(mode, seconds, file_name, vibrating))
     p.start()
-

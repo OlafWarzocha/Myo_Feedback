@@ -7,72 +7,62 @@ counter = 0
 pause_counter = 0
 threshold = 300
 
+
 def data_worker(mode, seconds, filepath, vibrating):
-    """
-    Function to collect EMG data from a Myo armband for a given number of seconds,
-    save the data to a CSV file, and changes logo the armband when the 4th EMG signal
-    exceeds the threshold.
-    """
-    # Initialize variables
     collect = True
-    myo_data = []
+    myo_data = []  # List to store the collected EMG data
 
-    # Access global counter variable
-
-
-    # Connect to the Myo armband
     m = Myo(mode=mode)
     m.connect()
 
-    # Add a battery handler to the Myo armband
+    def print_battery(bat):
+        print("Battery level:", bat)    # Print battery level
 
+    m.add_battery_handler(print_battery)
 
-    # Define the function that adds EMG data to the queue.
     def add_to_queue(emg, movement):
-        # Append the value of the fourth EMG signal to the queue.
+        # Append the EMG data to myo_data
         myo_data.append(emg[3])
 
-        # Access global counter variable
         global counter
         global pause_counter
         global threshold
 
-        print(counter)
+        #print(counter)
 
-        # Change Logo the armband if the 4th EMG signal exceeds the threshold
         if emg[3] > threshold and pause_counter == 0:
+            # If the EMG value exceeds the threshold and pause_counter is 0, perform actions
             m.set_leds([255, 255, 0], [255, 255, 0])
 
             counter += 1
 
-            if counter>50:
+            if counter > 50:
+                # If counter exceeds 50, perform additional actions and reset counter
                 m.set_leds([255, 0, 0], [255, 0, 0])
                 counter = 0
                 pause_counter = 50
 
         else:
             if pause_counter == 0:
+                # If pause_counter is 0, set LEDs to indicate normal state
                 m.set_leds([0, 255, 0], [0, 255, 0])
 
             counter = 0
 
             if not pause_counter == 0:
+                # If pause_counter is not 0, decrement it
                 pause_counter -= 1
 
-
-    # Add the EMG data handler to the Myo armband
     m.add_emg_handler(add_to_queue)
 
-    # Set the LED colors and vibrate the armband to indicate that it is connected
     m.set_leds([255, 255, 255], [255, 255, 255])
     m.vibrate(1)
 
-    # Start collecting data
     print("Data Worker started to collect")
     start_time = time.time()
     while collect:
         if time.time() - start_time < seconds:
-            #print(round(time.time() - start_time))
+            # Keep collecting data until the specified collection time is reached
             m.run()
         else:
             collect = False
@@ -81,14 +71,15 @@ def data_worker(mode, seconds, filepath, vibrating):
             print(f"Collection time: {collection_time}")
             print(len(myo_data), "frames collected")
 
-            # Save the collected data to a CSV file
+            # Convert myo_data to a DataFrame and save it to a CSV file
             myo_df = pd.DataFrame(myo_data, columns=["Channel_4"])
             myo_df.to_csv(filepath, index=False)
             print("CSV Saved at: ", filepath)
 
+
 if __name__ == '__main__':
     # Set the collection time and output file name
-    seconds = 10
+    seconds = 20
     file_name = str(seconds) + "_test_emg.csv"
 
     # Set the Myo armband mode and initialize the shared value for vibration control
@@ -98,4 +89,3 @@ if __name__ == '__main__':
     # Start the data worker process
     p = multiprocessing.Process(target=data_worker, args=(mode, seconds, file_name, vibrating))
     p.start()
-
