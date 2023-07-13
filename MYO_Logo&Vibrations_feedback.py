@@ -23,7 +23,7 @@ def data_worker(mode, seconds, filepath, vibrating):
     def add_to_queue(emg, movement):
         # Callback function for handling incoming EMG data
 
-        myo_data.append(emg[3])  # Append EMG data from channel 4 to myo_data list
+        myo_data.append(emg[3])  # 3 to retrieve data from the 4th channel and 7 for 8th channel
 
         global counter
         global pause_counter
@@ -34,7 +34,7 @@ def data_worker(mode, seconds, filepath, vibrating):
         if emg[3] > threshold and pause_counter == 0:
             # If the EMG value is above the threshold and no pause is active
 
-            m.set_leds([255, 255, 0], [255, 255, 0])  # Set LED color to yellow
+            m.set_leds([255, 255, 0], [255, 255, 0])  # Set LED color to yellow [255, 255, 0]
 
             if not vibrating.value:
                 m.vibrate(1)  # Vibrate the Myo armband for 1 second
@@ -43,9 +43,9 @@ def data_worker(mode, seconds, filepath, vibrating):
             counter += 1
 
             if counter > 50:
-                # If consecutive frames above threshold exceed 50
+                # If counter exceeds 50, perform additional actions and reset counter
 
-                m.set_leds([255, 0, 0], [255, 0, 0])  # Set LED color to red
+                m.set_leds([0, 255, 0], [0, 255, 0])  # Set LED color to red
                 m.vibrate(1)  # Vibrate the Myo armband for 1 second
                 counter = 0
                 pause_counter = 50  # Introduce a pause of 50 frames
@@ -53,7 +53,7 @@ def data_worker(mode, seconds, filepath, vibrating):
 
         else:
             if pause_counter == 0:
-                m.set_leds([0, 255, 0], [0, 255, 0])  # Set LED color to green
+                m.set_leds([0, 255, 255], [0, 255, 255])  # Set LED color to green [0, 255, 0]
 
             counter = 0
             vibrating.value = False

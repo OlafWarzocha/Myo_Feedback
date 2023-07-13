@@ -16,19 +16,19 @@ def data_worker(mode, seconds, filepath, vibrating):
     m.connect()
 
     def print_battery(bat):
-        print("Battery level:", bat)    # Print battery level
+        print("Battery level:", bat)  # Print battery level
 
     m.add_battery_handler(print_battery)
 
     def add_to_queue(emg, movement):
         # Append the EMG data to myo_data
-        myo_data.append(emg[3])
+        myo_data.append(emg[3])  # 3 to retrieve data from the 4th channel and 7 for 8th channel
 
         global counter
         global pause_counter
         global threshold
 
-        #print(counter)
+        # print(counter)
 
         if emg[3] > threshold and pause_counter == 0:
             # If the EMG value exceeds the threshold and pause_counter is 0, perform actions
@@ -38,6 +38,7 @@ def data_worker(mode, seconds, filepath, vibrating):
 
             if counter > 50:
                 # If counter exceeds 50, perform additional actions and reset counter
+
                 m.set_leds([255, 0, 0], [255, 0, 0])
                 counter = 0
                 pause_counter = 50

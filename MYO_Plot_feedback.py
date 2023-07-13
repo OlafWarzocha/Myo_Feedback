@@ -76,7 +76,7 @@ def animate(i):
     channels = np.array(emg_queue.queue)
 
     if emg_queue.full():
-        channel = channels[:, 3]  # Retrieve data from the 4th channel
+        channel = channels[:, 7]  # 3 to retrieve data from the 4th channel and 7 for 8th channel
         line.set_ydata(channel)
         subplots.set_ylim(0, max(1024, max(channel)))
 
