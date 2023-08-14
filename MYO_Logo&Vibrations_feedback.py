@@ -5,7 +5,7 @@ from pyomyo import Myo, emg_mode
 
 counter = 0  # Counter to keep track of consecutive frames above the threshold
 pause_counter = 0  # Counter to introduce a pause after reaching the threshold
-threshold = 300  # Threshold value for detecting a signal above which actions are performed
+threshold = 150  # Threshold value for detecting a signal above which actions are performed
 
 def data_worker(mode, seconds, filepath, vibrating):
 
@@ -45,7 +45,7 @@ def data_worker(mode, seconds, filepath, vibrating):
             if counter > 50:
                 # If counter exceeds 50, perform additional actions and reset counter
 
-                m.set_leds([0, 255, 0], [0, 255, 0])  # Set LED color to red
+                m.set_leds([255, 0, 0], [255, 0, 0])  # Set LED color to red
                 m.vibrate(1)  # Vibrate the Myo armband for 1 second
                 counter = 0
                 pause_counter = 50  # Introduce a pause of 50 frames
@@ -84,7 +84,7 @@ def data_worker(mode, seconds, filepath, vibrating):
 
 
 if __name__ == '__main__':
-    seconds = 20
+    seconds = 2000
     file_name = str(seconds) + "_test_emg.csv"
 
     mode = emg_mode.PREPROCESSED

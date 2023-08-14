@@ -5,7 +5,7 @@ from pyomyo import Myo, emg_mode
 
 counter = 0
 pause_counter = 0
-threshold = 300
+threshold = 150
 
 
 def data_worker(mode, seconds, filepath, vibrating):
@@ -46,7 +46,7 @@ def data_worker(mode, seconds, filepath, vibrating):
         else:
             if pause_counter == 0:
                 # If pause_counter is 0, set LEDs to indicate normal state
-                m.set_leds([0, 255, 0], [0, 255, 0])
+                m.set_leds([0, 255, 255], [0, 255, 255])
 
             counter = 0
 
@@ -80,7 +80,7 @@ def data_worker(mode, seconds, filepath, vibrating):
 
 if __name__ == '__main__':
     # Set the collection time and output file name
-    seconds = 20
+    seconds = 2000
     file_name = str(seconds) + "_test_emg.csv"
 
     # Set the Myo armband mode and initialize the shared value for vibration control

@@ -8,7 +8,7 @@ from pyomyo import Myo, emg_mode
 
 q = multiprocessing.Queue()
 
-threshold = 300
+threshold = 150
 
 
 # Class for handling the Myo armband and retrieving EMG data
@@ -76,7 +76,7 @@ def animate(i):
     channels = np.array(emg_queue.queue)
 
     if emg_queue.full():
-        channel = channels[:, 7]  # 3 to retrieve data from the 4th channel and 7 for 8th channel
+        channel = channels[:, 3]  # 3 to retrieve data from the 4th channel and 7 for 8th channel
         line.set_ydata(channel)
         subplots.set_ylim(0, max(1024, max(channel)))
 
@@ -84,7 +84,7 @@ def animate(i):
             subplots.set_facecolor('yellow')
             counter += 1
             if counter >= 50:  # (50 = 1sec)
-                subplots.set_facecolor('xkcd:mint green')
+                subplots.set_facecolor('xkcd:salmon')
         else:
             subplots.set_facecolor('white')
             counter = 0
